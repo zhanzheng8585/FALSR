@@ -4,9 +4,7 @@ import tensorflow as tf
 import cv2
 import argparse
 import numpy as np
-import scipy.misc
 import imageio
-# from scipy.misc import imsave
 import skimage.color as sc
 import skimage
 from skimage import measure
@@ -137,8 +135,8 @@ def load_file_list(path=None, regx='\.jpg', printable=True, keep_prefix=False):
 
 
 def evaluate(calculate_lr_img_list, calculate_hr_img_list, pb_path, save_path, save=False):
-    calculate_hr_imgs = [scipy.misc.imread(p, mode='RGB') for p in calculate_hr_img_list]
-    calculate_lr_imgs = [scipy.misc.imread(p, mode='RGB') for p in calculate_lr_img_list]
+    calculate_hr_imgs = [imageio.imread(p, mode='RGB') for p in calculate_hr_img_list]
+    calculate_lr_imgs = [imageio.imread(p, mode='RGB') for p in calculate_lr_img_list]
 
 
     with tf.Graph().as_default():
@@ -156,7 +154,7 @@ def evaluate(calculate_lr_img_list, calculate_hr_img_list, pb_path, save_path, s
                 calculate_hr_img = calculate_hr_imgs[index]
                 size = calculate_lr_img.shape
                 ypbpr = sc.rgb2ypbpr(calculate_lr_img / 255.0)
-                x_scale = scipy.misc.imresize(calculate_lr_img, [size[0] * scale, size[1] * scale], interp='bicubic', mode=None)
+                x_scale = imageio.imresize(calculate_lr_img, [size[0] * scale, size[1] * scale], interp='bicubic', mode=None)
                 y, pbpr = ypbpr[..., 0], sc.rgb2ypbpr(x_scale / 255)[..., 1:]
                 y = np.expand_dims(y, -1)
                 paras = {y_image: [y], pbpr_image: [pbpr]}
@@ -170,9 +168,8 @@ def evaluate(calculate_lr_img_list, calculate_hr_img_list, pb_path, save_path, s
 
                 if save:
                     exists_or_mkdir(save_path)
-                    im = scipy.misc.toimage(out, high=255, low=0)
+                    im = imageio.toimage(out, high=255, low=0)
                     im.save(save_path + os.sep + calculate_hr_img_list[index].split(os.sep)[-1].replace('HR', 'SR'))
-                    # imsave(save_path + os.sep + calculate_hr_img_list[index].split(os.sep)[-1].replace('HR', 'SR'), out)
                 out_ycbcr = sc.rgb2ycbcr(out)
                 hr_ycbcr = sc.rgb2ycbcr(calculate_hr_img)
                 metrics.append(calculate_metrics([out_ycbcr[:, :, 0:1]], [hr_ycbcr[:, :, 0:1]]))
