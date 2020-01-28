@@ -6,7 +6,7 @@ import argparse
 import numpy as np
 import scipy.misc
 import imageio
-from scipy.misc import imsave
+# from scipy.misc import imsave
 import skimage.color as sc
 import skimage
 from skimage import measure
